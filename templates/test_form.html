@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<form action="/get_test" method="get">
+    <input type="text"     name="user_id">
+    <input type="password" name="user_pw">
+    <input type="submit"  value="get로그인">
+</form>
+<br>
+<form action="/post_test" method="post">
+    <input type="text"     name="user_id">
+    <input type="password" name="user_pw">
+    <input type="submit"  value="post로그인">
+</form>
+
+<br>
+<!----- jquery CDN ------>
+<script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+<script>
+String.prototype.format = String.prototype.f = function() {
+    var s = this;
+    var i = arguments.length;
+    while (i--) {
+        s = s.replace(new RegExp('\\{' + i + '\\}', 'gm'), arguments[i]);
+    }
+    return s;
+};
+
+$( document ).ready(function(){
+
+    $( "#ID_button" ).on( "click", function() {
+       //비동기통신
+        $.ajax( {
+            url:"/ajax_post_test"
+            , type : "POST"
+            , contentType : 'application/x-www-form-urlencoded; charset=UTF-8'
+            //, data : "user_id=kim&user_pw=111"
+            , data : {"user_id":$("#ID_user_id").val(), "user_pw":$("#ID_user_pw").val()}
+            , error : function(err){  alert("에러요")  }
+            , success : function(res_str){
+                    console.log(res_str)
+
+                    //--- 글자 ---> 객체로 변형
+                    //--- 파이썬용  : json.loads()
+                    //--- 제이쿼리용 : JSON.parse()
+                    res_obj = JSON.parse(res_str)
+                    console.log(res_obj)
+
+                    vhtml = "<table border=1 width=50% cellpadding=0 cellspacing=0>"
+                    $.map( res_obj, function( dic, i ) {
+                        console.log("---", dic, i)
+                        vhtml += "<tr><td> {0} </td><td> {1} </td></tr>".format(dic['ENAME'], dic['SAL'])
+                    });
+                    vhtml += "</table>"
+                    //$( "#ID_div" ).html(res_obj[1]["SAL"])
+                    $( "#ID_div" ).empty()
+                    $( "#ID_div" ).html(vhtml)
+                    console.log("{0} * {1}  = {2}".format(2, 3, 6));
+
+
+                    //--- 객체 ---> 글자로 변형
+                    //--- 파이썬용  : json.dumps()
+                    //--- 제이쿼리용 : JSON.stringify()
+                    res_str = JSON.stringify(res_obj)
+                    console.log(res_str)
+
+
+
+              }
+
+        })
+    });
+
+});
+
+</script>
+
+<!--- html 주석 --->
+<form  id="ID_form">
+    <input type="text"         id="ID_user_id" name="user_id">
+    <input type="password"     id="ID_user_pw" name="user_pw">
+    <input type="button"       id="ID_button" value="ajax로그인">
+</form>
+<div id="ID_div"></div>
+</body>
+</html>
